@@ -12,9 +12,6 @@ router.get("/getAllPosts", postsController.findAll);
 // find a single post by id
 router.get("/getOnePost/:id", postsController.findOne);
 
-// search posts by keyword
-router.post("/search", postsController.search);
-
 // updateComment 
 router.post("/updateComment", postsController.updateComment);
 
@@ -27,7 +24,6 @@ router.delete("/deletePost/:id", postsController.delete);
 // delete all posts
 router.delete("/deleteAllPosts", postsController.deleteAll);
 
-// find all published posts
-router.get("/getAllPublishedPosts", postsController.findAllPublished);
+
 
 module.exports = router;

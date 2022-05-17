@@ -5,40 +5,45 @@ const { successHandler, errorHandler } =require('../server/handle')
 // create and save a new post
 exports.create = async (req, res) => {
   try {
-    const { userId,user, content, image, likes } = req.body;
-    const data = { userId, user,content, image, likes };
-    console.log(data)
-    if (!user || !content) {
-      errorHandler(res, '使用者與內容必填');
+    const { userId, content, image, likes ,tags} = req.body;
+    let dataPost = {
+      user: userId,
+      tags,
+      type: req.body.type || "person",
+      image,
+      content,
+      likes,
+    };
+    if (!dataPost.content) {
+      errorHandler(res, '內容不能為空');
     } else {
-      const findUser = await User.findById(userId).exec();
-      console.log('ss',!findUser)
-        if (!findUser) {
-            errorHandler(res, '查無使用者');
-        } else {
-          console.log('jet')
-            const newPost = await Post.create(data);
-            successHandler(res, "新增成功", newPost);
-        }
+      const newPost = await Post.create(dataPost);
+      let payload = { postId: newPost._id };
+      successHandler(res, 'success', payload);
     }
   } catch (error) {
-    errorHandler(res,error)
+    errorHandler(res, error);
   }
 };
 
 // retrieve all posts from db
 exports.findAll = async(req, res) => {
-  const { keyword, sort } = req.query;
-  const dateSort = sort === 'desc' ? -1 : 1;
-  const posts = await Post.find({
-      content: { $regex: keyword || '' }
-  })
-      .populate({ 
-          path: 'user', // post 內 user 欄位
-          select: 'name photo' // 取出相關聯 collection name & photo
-      })
-      .sort({ 'createdAt': dateSort });
-  successHandler(res, "取得成功", posts);
+  try {
+    console.log(req.query)
+    const timeSort = req.query.timeSort === 'asc' ? 'createdAt' : '-createdAt'
+    const q = req.query.keyword !== undefined ? { content: new RegExp(req.query.keyword) } : {}
+    console.log(timeSort,q)
+    const allPost = await Post.find(q).populate({path:'user',select: 'userName avatar'}).sort(timeSort)
+   
+    console.log(allPost)
+    if (allPost) {
+      successHandler(res,'success',allPost)
+    } else {
+      errorHandler(res, error)
+    }
+  } catch (error) {
+    errorHandler(res, error)
+  }
 };
 
 // find a single post by id
@@ -56,57 +61,26 @@ exports.findOne = async(req, res) => {
   }
 };
 
-// search posts by keyword
-exports.search = async (req, res) => {
-  try {
-    let { keyword, sortby, limit = 10, page = 1 } = req.body;
-    let filter = keyword ? { content: new RegExp(`${keyword}`) } : {};
-    let sort = sortby === "datetime_pub" ? { createAt: 1 } : {};
-    if (page < 0) {
-      page = 1;
-    }
-    let skip = limit * (page - 1);
 
-    const count = await Post.find(filter).count();
-    const posts = await Post.find(filter).sort(sort).skip(skip).limit(limit);
-    // console.log(posts);
-    let resPosts = posts.map((item) => {
-      return {
-        postId: item._id,
-        userName: item.userName,
-        userPhoto: item.userPhoto,
-        content: item.content,
-        image: item.image,
-        datetime_pub: item.createAt,
-      };
-    });
-    let payload = { count, limit, page, posts: resPosts };
-    res.status(200).send({ status: "success", payload });
-  } catch (error) {
-    errorHandler(res,"error")
-  }
-};
-
-exports.updateComment = async(req,res)=>{
+exports.updateComment = async (req, res) => {
   try {
     const {postId,userId,comment} = req.body
     const data ={postId,userId,comment}
-    // 差 userModel 取得 留言者 userName userPhoto
-    const postDataComments = {userName:'sss234',userPhoto:'sssaas',message:data.comment}
-  
+    const userInfo = await User.find({_id:userId})
+    // const postDataComments = {userName:'sss234',userPhoto:'sssaas',message:data.comment}
+    const postDataComments = {userName:userInfo[0].userName,userPhoto:userInfo[0].avatar,message:comment}
     const postItem= await Post.findOneAndUpdate({_id:postId},{ $push: { comments: postDataComments  } });
-    console.log(postItem)
 
     if(!data.comment){
       errorHandler(res,"內容不能為空")
     }else{
       
-      res.status(200).send({ status: "success",postItem });
+      res.status(200).send({ status: "success",postItem  });
     }
   } catch (error) {
-    errorHandler(res,error)
+    errorHandler(res, error);
   }
-}
+};
 
 // update a post by id
 exports.update = async(req, res) => {
@@ -152,6 +126,3 @@ exports.deleteAll = async(req, res) => {
 };
 
 
-
-// find all published posts
-exports.findAllPublished = (req, res) => {};
