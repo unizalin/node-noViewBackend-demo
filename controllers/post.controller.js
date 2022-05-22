@@ -29,13 +29,10 @@ exports.create = async (req, res) => {
 // retrieve all posts from db
 exports.findAll = async(req, res) => {
   try {
-    console.log(req.query)
     const timeSort = req.query.timeSort === 'asc' ? 'createdAt' : '-createdAt'
     const q = req.query.keyword !== undefined ? { content: new RegExp(req.query.keyword) } : {}
-    console.log(timeSort,q)
-    const allPost = await Post.find(q).populate({path:'user',select: 'userName avatar'}).sort(timeSort)
+    const allPost = await Post.find(q).populate({path:'user',select: 'name photo'}).sort(timeSort)
    
-    console.log(allPost)
     if (allPost) {
       successHandler(res,'success',allPost)
     } else {

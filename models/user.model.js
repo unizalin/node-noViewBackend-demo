@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
             type: Date,
             default: Date.now,
         },
-            photo: String,
+        photo: String,
     },
     {
         versionKey: false,
