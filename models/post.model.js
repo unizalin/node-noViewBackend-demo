@@ -1,14 +1,10 @@
 const mongoose = require("mongoose");
 const postSchema = new mongoose.Schema(
   {
-    userId:{
+    user:{
       type: mongoose.Schema.ObjectId,
       ref: 'User', // 連接到 User collection
       required: [ true, 'user id 未填寫' ]
-    },
-    user: {
-        type: String,
-        required: [ true, 'user Name 未填寫' ]
     },
     content: {
         type: String,
