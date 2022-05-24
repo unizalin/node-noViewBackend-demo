@@ -20,7 +20,10 @@ const userSchema = new mongoose.Schema(
             type: Date,
             default: Date.now,
         },
-        photo: String,
+        photo: {
+            type: String,
+            default: 'https://cdn.pixabay.com/photo/2021/01/04/10/41/icon-5887126_960_720.png'
+        }
     },
     {
         versionKey: false,
