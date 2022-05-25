@@ -142,6 +142,111 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "取得所有使用者",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://mysterious-anchorage-86539.herokuapp.com/users/allUser",
+					"protocol": "https",
+					"host": [
+						"mysterious-anchorage-86539",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"allUser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查詢使用者資料",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://mysterious-anchorage-86539.herokuapp.com/users/getUserInfo",
+					"protocol": "https",
+					"host": [
+						"mysterious-anchorage-86539",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"getUserInfo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "刪除單一",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://mysterious-anchorage-86539.herokuapp.com/users/deleteUser",
+					"protocol": "https",
+					"host": [
+						"mysterious-anchorage-86539",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"deleteUser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "刪除全部",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://mysterious-anchorage-86539.herokuapp.com/users/deleteAllUsers",
+					"protocol": "https",
+					"host": [
+						"mysterious-anchorage-86539",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"deleteAllUsers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "編輯單一使用者",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "https://mysterious-anchorage-86539.herokuapp.com/users/updateUser",
+					"protocol": "https",
+					"host": [
+						"mysterious-anchorage-86539",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"users",
+						"updateUser"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
