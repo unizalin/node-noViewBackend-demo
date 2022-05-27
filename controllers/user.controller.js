@@ -6,7 +6,7 @@ const appError = require("../server/appError")
 exports.create = handleErrorAsync(async(req,res,next)=>{
     const {name,email,gender,photo} = req.body
     const data = {name,email,gender,photo}
-
+    
     if(!data.name|| !data.email){
       return next(appError(400,"姓名跟E-mail需要填寫",next))
     }
@@ -23,8 +23,8 @@ exports.findAll = handleErrorAsync( async(req,res,next)=>{
 
 exports.findOne = handleErrorAsync(async(req,res,next)=>{
       const userId = req.params.id
-      const userItem = await User.find({_id:userId})
-      if(!Object.keys(userItem).length){
+      const userItem = await User.findById(userId).exec()
+      if(!userItem){
         return next(appError(400,"查無此ID",next))
       }
         successHandler(res,'success',userItem)
@@ -38,12 +38,10 @@ exports.deleteAll = handleErrorAsync(async(req,res,next)=>{
 exports.deleteOne = handleErrorAsync(async(req,res,next)=>{
     const userId = req.params.id
     const delUser = await User.findByIdAndDelete(userId);
-    console.log(delUser)
-    if(delUser==null){
+    if(!delUser){
       return next(appError(400,"查無此ID",next))
     }
-    const users =await User.find({});
-    successHandler(res,'success',users)
+    successHandler(res,'刪除成功')
 })
 
 exports.updateUser = handleErrorAsync(async(req,res,next)=>{
@@ -52,16 +50,15 @@ exports.updateUser = handleErrorAsync(async(req,res,next)=>{
   const userId = req.params.id
   const user = await User.findById(userId).exec();
   if(!user){
-    return next(appError(400,"查無此ID，無法發文",next))
+    return next(appError(400,"查無此ID，無法變更資料",next))
   }
   if(!data.name|| !data.email){
     return next(appError(400,"姓名跟E-mail不能為空",next))
   }
-  const resultUser = await User.findByIdAndUpdate(userId,data);
-  if(resultUser == null){
+  const updateUser = await User.findByIdAndUpdate(userId,data);
+  if(!updateUser){
     return next(appError(400,"查無此ID",next))
   }
-
-  const newData =await User.findById(userId);
-  successHandler(res,'success',newData)
+  const resultUser =await User.findById(userId).exec();
+  successHandler(res,'success',resultUser)
 })

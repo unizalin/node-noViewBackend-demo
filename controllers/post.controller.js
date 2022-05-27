@@ -3,6 +3,7 @@ const User = require("../models/user.model")
 const { successHandler, errorHandler } =require('../server/handle')
 const appError = require("../server/appError")
 const handleErrorAsync = require("../server/handleErrorAsync")
+
 // create and save a new post
 exports.create = handleErrorAsync(async (req, res,next) => {
     const { userId, content, image, likes ,tags} = req.body;
@@ -44,11 +45,9 @@ exports.findAll = handleErrorAsync ( async(req, res , next) => {
 
 // find a single post by id
 exports.findOne = handleErrorAsync (async(req, res, next) => {
-
     const postId = req.params.id
-    const postItem = await Post.find({_id:postId})
-    
-    if(!Object.keys(postItem).length){
+    const postItem = await Post.findById(postId).exec()
+    if(!postItem){
       return next(appError(400,"無此ID貼文",next))
     }
     successHandler(res,'success',postItem)
@@ -56,34 +55,41 @@ exports.findOne = handleErrorAsync (async(req, res, next) => {
 });
 
 
-exports.updateComment = handleErrorAsync( async (req, res ,next) => {
 
-  const {postId,userId,comment} = req.body
-  const data ={postId,userId,comment}
-  const userInfo = await User.find({_id:userId})
-  const postDataComments = {userName:userInfo[0].userName,userPhoto:userInfo[0].avatar,message:comment}
-  const postItem= await Post.findOneAndUpdate({_id:postId},{ $push: { comments: postDataComments  } });
 
-  if(!data.comment){
-    return next(appError(400,"內容不能為空",next))
-  }
-    successHandler(res,'success',postItem)
-});
 
 // update a post by id
 exports.update = handleErrorAsync (async(req, res, next) => {
-
+    const postId = req.params.id
     const {userName,content,image,likes} = req.body 
     const data ={userName,content,image,likes}
     if(!data.content){
       return next(appError(400,"內容不能為空",next))
     }
-    
-    const editPost = await Post.findByIdAndUpdate(req.params.id, data);
+    const editPost = await Post.findByIdAndUpdate(postId, data);
     if(!editPost){
       return next(appError(400,"查無此ID，無法更新",next))
     }
-      successHandler(res,'success',editPost)
+    const resultPost = await Post.findById(postId).exec()
+    successHandler(res,'success',resultPost)
+});
+
+
+//  add a comment by postId userId
+exports.updateComment =  handleErrorAsync( async (req, res , next ) => {
+  const { postId,userId,comment} = req.body
+  let data ={postId,userId,comment}
+  const userInfo = await User.findById(data.userId).exec()
+  if(!userInfo){
+    return next(appError(400,"無此發文者ID",next))
+  }
+  if(!data.comment){
+    return next(appError(400,"無填寫留言",next))
+  }
+  const postDataComments = {userName:userInfo.name,userPhoto:userInfo.photo,message:comment}
+  await Post.findOneAndUpdate({id:data.postId},{ $push: { comments: postDataComments  } });
+  const result = await Post.findById(data.postId).exec()
+  successHandler(res,'success',result)
 });
 
 // delete a post by id
